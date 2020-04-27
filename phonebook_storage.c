@@ -16,18 +16,15 @@ struct phone_book_entry* find_prev (char *surname) {
     while (current_entry != NULL) {
 
         if (strncmp(current_entry->surname, surname, FIELD_SIZE) == 0) {
-            printk(KERN_INFO "Found entry!");
             return prev;
         }
         prev = current_entry;
         current_entry = current_entry->next;
     }
-    printk(KERN_INFO "Failed to find entry");
-    return NULL;
+    return prev;
 }
 
 struct phone_book_entry* get_entry (char *surname) {
-    printk(KERN_INFO "Looking for surname %s\n", surname);
     struct phone_book_entry* prev = find_prev(surname);
     if (prev == NULL) {
         return list_head;
@@ -62,6 +59,9 @@ int remove_entry (char* surname) {
     struct phone_book_entry* prev = find_prev(surname);
     if (prev == NULL) {
         struct phone_book_entry* old_head = list_head;
+        if (old_head == list_tail) {
+            list_tail = NULL;
+        }
         list_head = list_head->next;
         kfree(old_head);
     } else {
@@ -69,6 +69,9 @@ int remove_entry (char* surname) {
             return -1;
         }
         struct phone_book_entry* to_remove = prev->next;
+        if (to_remove == list_tail) {
+            list_tail = prev;   
+        }
         prev->next = to_remove->next;
         kfree(to_remove);
     }

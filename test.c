@@ -6,12 +6,11 @@
 #include <unistd.h>
  
 #define BUFFER_LENGTH 256
-static char receive[BUFFER_LENGTH];
  
 int main(){
    const char* path = "/dev/phonebook_device";
    int ret, fd;
-
+   char receive[BUFFER_LENGTH];
    const char* stringsToSend[] = {
       "[add]name: Ivan\nsurname: Brackman\nage: 26\nphone: 555-35-35\nemail: ivan.brackman@gmail.com\n", 
       "[get]Brackman",
@@ -19,7 +18,7 @@ int main(){
       "[del]Brackman",
       "[get]Brackman",
       "[add]name: Ivan\nsurname: Brackman\nage: 26\nphone: 555-35-35\nemail: ivan.brackman@gmail.com\n",
-      "[add]name: Ivan\nsurname: Putin\nage: 999\nphone: 01\nemail: mail@example.com\n",
+      "[add]name: Ivan\nsurname: Putin\nage: 99\nphone: 01\nemail: mail@example.com\n",
       "[get]Brackman",
       "[get]Putin",
       "[teg]Putin",
@@ -34,6 +33,7 @@ int main(){
    }
 
    for (int i = 0; i < sizeof(stringsToSend) / sizeof(stringsToSend[0]); ++i) {
+      memset(receive, 0, 256);
       printf("Writing message to the device:\n%s\n", stringsToSend[i]);
       ret = write(fd, stringsToSend[i], strlen(stringsToSend[i])); 
       if (ret < 0){

@@ -46,8 +46,6 @@ static int __init my_phone_catalog_init(void) {
         return majorNumber;
     }
 
-    printk(KERN_INFO "PhoneBook: module has been loaded with major number %d\n", majorNumber);
-
     // Register the device class
     phoneBookCharClass = class_create(THIS_MODULE, CLASS_NAME);
     if (IS_ERR(phoneBookCharClass)){
@@ -74,13 +72,11 @@ static void __exit my_phone_catalog_exit(void) {
     class_unregister(phoneBookCharClass);
     class_destroy(phoneBookCharClass);
     unregister_chrdev(majorNumber, DEVICE_NAME);
-
-    printk(KERN_INFO "Phone catalog module has been unloaded\n");
 }
 
 static void prepare_answer(void) {
     memset(answer, 0, 256);
-
+    print_list();
     const size_t cmd_size = strlen(ADD);
     if (size_of_query < cmd_size) {
         goto fail;
@@ -101,7 +97,8 @@ static void prepare_answer(void) {
 
     } else if (!strncmp(REMOVE, query, cmd_size)) {
         char* surname = query + cmd_size;
-        if (!remove_entry(surname)) {
+        int res = remove_entry(surname);
+        if (res == 0) {
             strcpy(answer, "OK");
         } else {
             strcpy(answer, "No such entry");
@@ -130,7 +127,6 @@ static void prepare_answer(void) {
 
 static ssize_t device_read(struct file* flip, char* buffer, size_t len, loff_t* offset) {
     int error_count = 0;
-
     error_count = copy_to_user(buffer, answer, strlen(answer));
 
     if (error_count == 0) {
@@ -163,13 +159,11 @@ static int device_open(struct inode* inode, struct file* file) {
     }
     printk(KERN_INFO "PhoneBook: Device is opened\n");
     device_open_count++;
-    //try_module_get(THIS_MODULE);
     return 0;
 }
 
 static int device_release(struct inode* inode, struct file* file) {
     device_open_count--;
-    //module_put(THIS_MODULE);
     printk(KERN_INFO "PhoneBook: Device is closed\n");
     return 0;
 }
