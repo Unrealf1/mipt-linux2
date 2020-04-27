@@ -1,5 +1,5 @@
 obj-m += my_module.o
-my_module-objs+= phone_book_storage.o my_phone_catalog_module.o
+my_module-objs+= phonebook_storage.o my_phonebook_module.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

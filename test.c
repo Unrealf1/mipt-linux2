@@ -11,32 +11,43 @@ static char receive[BUFFER_LENGTH];
 int main(){
    const char* path = "/dev/phonebook_device";
    int ret, fd;
-   char stringToSend[BUFFER_LENGTH];
-   printf("Starting device test code example...\n");
+
+   const char* stringsToSend[] = {
+      "[add]name: Ivan\nsurname: Brackman\nage: 26\nphone: 555-35-35\nemail: ivan.brackman@gmail.com\n", 
+      "[get]Brackman",
+      "[del]Ivan",
+      "[del]Brackman",
+      "[get]Brackman",
+      "[add]name: Ivan\nsurname: Brackman\nage: 26\nphone: 555-35-35\nemail: ivan.brackman@gmail.com\n",
+      "[add]name: Ivan\nsurname: Putin\nage: 999\nphone: 01\nemail: mail@example.com\n",
+      "[get]Brackman",
+      "[get]Putin",
+      "[teg]Putin",
+      "[del]Putin",
+      "[del]Brackman"
+      };
+
    fd = open("/dev/phonebook_device", O_RDWR);
    if (fd < 0){
       perror("Failed to open the device...");
       return errno;
    }
-   printf("Type in a short string to send to the kernel module:\n");
-   scanf("%[^\n]%*c", stringToSend);
-   printf("Writing message to the device [%s].\n", stringToSend);
-   ret = write(fd, stringToSend, strlen(stringToSend)); 
-   if (ret < 0){
-      perror("Failed to write the message to the device.");
-      return errno;
+
+   for (int i = 0; i < sizeof(stringsToSend) / sizeof(stringsToSend[0]); ++i) {
+      printf("Writing message to the device:\n%s\n", stringsToSend[i]);
+      ret = write(fd, stringsToSend[i], strlen(stringsToSend[i])); 
+      if (ret < 0){
+         puts("Failed to write the message to the device.");
+         continue;
+      }
+    
+      ret = read(fd, receive, BUFFER_LENGTH);
+      if (ret < 0){
+         puts("Failed to read the message from the device.");
+         continue;
+      }
+      printf("The received message is:\n%s\n", receive);
    }
- 
-   printf("Press ENTER to read back from the device...\n");
-   getchar();
- 
-   printf("Reading from the device...\n");
-   ret = read(fd, receive, BUFFER_LENGTH);
-   if (ret < 0){
-      perror("Failed to read the message from the device.");
-      return errno;
-   }
-   printf("The received message is: [%s]\n", receive);
    printf("End of the program\n");
    return 0;
 }

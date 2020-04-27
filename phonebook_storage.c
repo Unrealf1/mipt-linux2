@@ -1,7 +1,7 @@
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/slab.h>
-#include "phone_book_storage.h"
+#include "phonebook_storage.h"
 
 static struct phone_book_entry* list_head = NULL;
 static struct phone_book_entry* list_tail = NULL;
@@ -16,16 +16,18 @@ struct phone_book_entry* find_prev (char *surname) {
     while (current_entry != NULL) {
 
         if (strncmp(current_entry->surname, surname, FIELD_SIZE) == 0) {
+            printk(KERN_INFO "Found entry!");
             return prev;
         }
         prev = current_entry;
         current_entry = current_entry->next;
     }
-
+    printk(KERN_INFO "Failed to find entry");
     return NULL;
 }
 
 struct phone_book_entry* get_entry (char *surname) {
+    printk(KERN_INFO "Looking for surname %s\n", surname);
     struct phone_book_entry* prev = find_prev(surname);
     if (prev == NULL) {
         return list_head;
@@ -73,7 +75,7 @@ int remove_entry (char* surname) {
     return 0;
 }
 
-void clear(void) {
+void list_clear(void) {
     struct phone_book_entry* current_entry = list_head;
     while (current_entry != NULL) {
         struct phone_book_entry* next = current_entry->next;

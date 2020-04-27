@@ -14,4 +14,4 @@ struct phone_book_entry {
 struct phone_book_entry* get_entry (char *surname);
 void add_entry (char *name, char *surname, uint8_t age, char* phone, char* email);
 int remove_entry (char *surname);
-void clear(void);
+void list_clear(void);

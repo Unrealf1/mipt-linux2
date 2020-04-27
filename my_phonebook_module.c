@@ -6,7 +6,7 @@
 #include <linux/string.h>
 #include <linux/uaccess.h>
 
-#include "phone_book_storage.h"
+#include "phonebook_storage.h"
 
 #define  DEVICE_NAME "phonebook_device"
 #define  CLASS_NAME  "phonebook"
@@ -69,6 +69,7 @@ static int __init my_phone_catalog_init(void) {
 }
 
 static void __exit my_phone_catalog_exit(void) {
+    list_clear();
     device_destroy(phoneBookCharClass, MKDEV(majorNumber, 0));
     class_unregister(phoneBookCharClass);
     class_destroy(phoneBookCharClass);
@@ -78,6 +79,8 @@ static void __exit my_phone_catalog_exit(void) {
 }
 
 static void prepare_answer(void) {
+    memset(answer, 0, 256);
+
     const size_t cmd_size = strlen(ADD);
     if (size_of_query < cmd_size) {
         goto fail;
@@ -131,22 +134,21 @@ static ssize_t device_read(struct file* flip, char* buffer, size_t len, loff_t* 
     error_count = copy_to_user(buffer, answer, strlen(answer));
 
     if (error_count == 0) {
-        printk(KERN_INFO "PhoneBook: Sent %lu characters to the user\n", strlen(answer));
         return 0;
     }
     else {
-        printk(KERN_INFO "PhoneBook: Failed to send %d characters to the user\n", error_count);
         return -EFAULT;
     }
 }
 
 static ssize_t device_write(struct file* flip, const char* buffer, size_t len, loff_t* offset) {
+    memset(query, 0, 256);
+
     if (len > 256) {
         printk(KERN_ALERT "PhoneBook: Too many characters from the user\n");
         return -EFAULT;
     }
 
-    printk(KERN_INFO "PhoneBook: Received %zu characters from the user\n", len);
     copy_from_user(query, buffer, len);
     //sprintf(message, "%s(%zu letters)", buffer, len);
     size_of_query = strlen(query);
