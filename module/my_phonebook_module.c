@@ -76,7 +76,6 @@ static void __exit my_phone_catalog_exit(void) {
 
 static void prepare_answer(void) {
     memset(answer, 0, 256);
-    print_list();
     const size_t cmd_size = strlen(ADD);
     if (size_of_query < cmd_size) {
         goto fail;
