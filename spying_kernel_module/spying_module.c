@@ -18,7 +18,6 @@ static struct tasklet_struct tasklet;
 
 static void do_bottom(unsigned long unused) {
     atomic_long_inc(&(total_actions.counter));
-    printk(KERN_INFO "Spy: bottom executed\n");
 }
 
 static irqreturn_t do_top(int irq, void* dev_id) {
@@ -53,8 +52,6 @@ static int __init spy_init(void) {
 
     kthread = kthread_create(printer, NULL, "my_printer_thread");
     wake_up_process(kthread);
-
-    printk(KERN_INFO "Spy: module loaded\n");
 
     return 0;
 }
